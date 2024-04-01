@@ -1,28 +1,32 @@
-import { expressjwt, GetVerificationKey } from "express-jwt";
-import { Request } from "express";
-import jwksClient from "jwks-rsa";
-import { AuthCookie } from "../types";
+import { NextFunction, Request, Response } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken"
+import createHttpError from "http-errors";
+import { AuthRequest } from "../../auth/types";
 import config from "config";
 
-export default expressjwt({
-    secret: jwksClient.expressJwtSecret({
-        jwksUri: config.get("auth.jwksUri"),
-        cache: true,
-        rateLimit: true,
-    }) as GetVerificationKey,
-    algorithms: ["RS256"],
-    getToken(req: Request) {
-        const authHeader = req.headers.authorization;
 
-        // Bearer eyjllsdjfljlasdjfljlsadjfljlsdf
-        if (authHeader && authHeader.split(" ")[1] !== "undefined") {
-            const token = authHeader.split(" ")[1];
-            if (token) {
-                return token;
-            }
+const authenticate = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const token: string = req.headers.authorization?.split(" ")[1] || req.cookies.accessToken;
+
+        if (!token) {
+            throw new createHttpError.Unauthorized("Missing token");
         }
 
-        const { accessToken } = req.cookies as AuthCookie;
-        return accessToken;
-    },
-});
+        const decoded = jwt.verify(token, config.get("secret.secretkey")) as JwtPayload;
+
+        // Attach the decoded token data to the request object
+        (req as AuthRequest).auth = {
+            sub: decoded.sub || '',
+            role: decoded.role,
+            id: decoded.id
+        };
+
+        next();
+    } catch (error) {
+        // Pass the error to the next middleware
+        next(error);
+    }
+};
+
+export default authenticate;

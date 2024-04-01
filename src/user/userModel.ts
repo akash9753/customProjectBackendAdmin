@@ -50,7 +50,10 @@ const productSchema = new mongoose.Schema(
             type: [address],
             required: false, 
         },
-        
+        role: {
+            type: String,
+            required: true,
+        }, 
     },
     { timestamps: true },
 );

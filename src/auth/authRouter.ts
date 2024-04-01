@@ -5,6 +5,8 @@ import { UserService } from "../user/userService";
 import { TokenService } from "./tokenService";
 import { CredentialService } from "./credentialService";
 import { AuthController } from "./authController";
+import authValidator from "./authValidator";
+import authenticate from "../common/middlewares/authenticate";
 
 const router = express.Router();
 
@@ -24,10 +26,8 @@ router.post(
     asyncWrapper(authController.register),
 );
 
-router.post(
-    "/login",
-    createUserValidator,
-    asyncWrapper(authController.login),
-);
+router.post("/login", authValidator, asyncWrapper(authController.login));
+
+router.get("/self",authenticate, asyncWrapper(authController.self));
 
 export default router;

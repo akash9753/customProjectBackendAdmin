@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import { globalErrorHandler } from "./common/middlewares/globalErrorHandler";
 import authRouter from "./auth/authRouter"
 import userRouter from "./user/userRouter";
+import uploadRouter from "./video/uploadRouter";
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -15,6 +16,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
+app.use("/video", uploadRouter);
 
 
 

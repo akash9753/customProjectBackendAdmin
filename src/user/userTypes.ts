@@ -12,4 +12,5 @@ export interface User {
     address?: [];
     city:string;
     country:string;
+    role:string
 }

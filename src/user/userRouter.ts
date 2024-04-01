@@ -6,6 +6,7 @@ import createUserValidator from "./createUserValidator";
 import { UserService } from "./userService";
 import { S3Storage } from "../common/services/S3Storage";
 import createHttpError from "http-errors";
+import authenticate from "../common/middlewares/authenticate";
 
 const router = express.Router();
 
@@ -23,12 +24,13 @@ router.post(
             next(error);
         },
     }),
+    authenticate,
     createUserValidator,
     asyncWrapper(userController.create),
 );
 
 
-
+router.get("/getAllUsers",authenticate,asyncWrapper(userController.getAllUsers))
 
 
 export default router;

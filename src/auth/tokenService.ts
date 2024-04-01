@@ -1,7 +1,7 @@
 import { JwtPayload, sign } from "jsonwebtoken";
 import createHttpError from "http-errors";
 import config from "config";
-console.log(config.get("secret.secretkey"));
+// console.log(config.get("secret.secretkey"));
 
 
 
@@ -23,7 +23,7 @@ export class TokenService {
         }
 
         const accessToken = sign(payload, privateKey, {
-            algorithm: "RS256",
+            algorithm: "HS256",
             expiresIn: "1h",
             issuer: "auth-service",
         });

@@ -12,5 +12,18 @@ export class UserService {
         return await userModel.findOne({ email }).exec();
     }
 
-    
+    async findByEmail(email: string) {
+        const user = await userModel.findOne({ email });
+            return user;
+    }
+
+    async findById(id: string) {
+        const user = await userModel.findOne({ _id: id }).lean();
+            return user;
+    }
+
+    async getAllUsers(){
+        const users = await userModel.find();
+        return users;
+    }
 }

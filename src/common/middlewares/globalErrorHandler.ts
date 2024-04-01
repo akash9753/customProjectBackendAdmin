@@ -26,6 +26,7 @@ export const globalErrorHandler = (
     });
 
     res.status(statusCode).json({
+        status:false,
         errors: [
             {
                 ref: errorId,

@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { UserService } from "./userService";
-import { FileStorage } from "../common/types/storage";
 import { UploadedFile } from "express-fileupload";
 import { User } from "./userTypes";
+import { FileStorage } from "../common/types/storage";
 
 export class UserController {
     constructor(
@@ -42,7 +42,8 @@ export class UserController {
             confirmPassword,
             city,
             country,
-            address
+            address,
+            role
         } = req.body;
 
         const user: User = {
@@ -55,7 +56,8 @@ export class UserController {
             profileImage: imageName || "",
             city: city || "",
             country: country || "",
-            address:address || [] 
+            address:address || [],
+            role
         };
         
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -73,4 +75,10 @@ export class UserController {
 
         res.json({ id: newUser._id });
     };
+
+    getAllUsers = async(req: Request,res: Response)=>{
+        const users = await this.userService.getAllUsers();
+        const total = users.length;
+        res.json({status:true, total:total,data:users})
+    }
 }
