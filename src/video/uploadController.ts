@@ -64,29 +64,57 @@ export class UploadController {
     };
 
     index = async (req: Request, res: Response) => {
-        const { q, category, uploadedBy, isPublished, tags } = req.query;
+        const { title, category, uploadedBy, isPublished, tags } = req.body;
          
         const filters: Filter = {};
-        if (
-            uploadedBy &&
-            mongoose.Types.ObjectId.isValid(uploadedBy as string)
-        ) {
-            filters.uploadedBy = new mongoose.Types.ObjectId(
-                uploadedBy as string,
-            );
-        }
-        if(isPublished) filters.isPublished = isPublished as string;
-        if(category) filters.category = category as string;
-        
-        const tagsArray = Array.isArray(tags) ? tags : [tags];
 
+        if (category && Array.isArray(category) && category.length > 0) {
+            filters.category = category;
+        }
+    
+        if (tags && Array.isArray(tags) && tags.length > 0) {
+            filters.tags = tags;
+        }
+    
+        if (uploadedBy && Array.isArray(uploadedBy) && uploadedBy.length > 0) {
+            // Convert uploadedBy strings to mongoose.Types.ObjectId
+            filters.uploadedBy = uploadedBy.map((id: string) => mongoose.Types.ObjectId.createFromHexString(id));
+        }
+    
+        if (isPublished) {
+            filters.isPublished = isPublished;
+        }
+        // console.log(`filters`,filters,title);
+        
         const videos = await this.uploadService.getVideos(
-            q as string,
+            title as string,
             filters,
-            tagsArray as string[]
+            {
+                page: req.query.page ? parseInt(req.query.page as string) : 1,
+                limit: req.query.limit
+                    ? parseInt(req.query.limit as string)
+                    : 10,
+            },
         );
 
+        const finalVideos = (videos.data as Video[]).map(
+            (video: Video) => {
+                return {
+                    ...video,
+                    image: this.s3Storage.getObjectUri(video.videoFile),
+                };
+            },
+        );
 
-        res.json(videos);
+        res.json({
+            total: videos.total,
+            pageSize: videos.limit,
+            currentPage: videos.page,
+            data: finalVideos,
+            
+        });
+
+
+        // res.json(videos);
     }
 }

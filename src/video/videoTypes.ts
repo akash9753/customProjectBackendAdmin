@@ -12,9 +12,11 @@ export interface Video{
 }
 
 export interface Filter {
-    category?: string;
-    uploadedBy?: mongoose.Types.ObjectId;
+    title?:string,
     isPublished?: string;
+    category?: string[];
+    tags?: string[];
+    uploadedBy?: mongoose.Types.ObjectId[];
 }
 
 export interface PaginateQuery {
