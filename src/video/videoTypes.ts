@@ -17,9 +17,15 @@ export interface Filter {
     category?: string[];
     tags?: string[];
     uploadedBy?: mongoose.Types.ObjectId[];
+    createdAt?: { start: Date; end: Date };
 }
 
 export interface PaginateQuery {
     page: number;
     limit: number;
+}
+
+export interface DateRange {
+    start: Date; 
+    end: Date
 }

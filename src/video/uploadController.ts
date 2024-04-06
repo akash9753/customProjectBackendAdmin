@@ -4,8 +4,9 @@ import { FileStorage } from "../common/types/storage";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { UploadedFile } from "express-fileupload";
-import { Filter, Video } from "./videoTypes";
+import { Filter, Video, DateRange } from "./videoTypes";
 import { v4 as uuidv4 } from "uuid";
+// import moment from 'moment';
 import mongoose from "mongoose";
 export class UploadController {
     constructor(
@@ -39,6 +40,8 @@ export class UploadController {
 
         const { title, description, category, isPublished, uploadedBy } = req.body;
 
+        
+
         const video: Video = {
             title,
             description,
@@ -64,8 +67,15 @@ export class UploadController {
     };
 
     index = async (req: Request, res: Response) => {
-        const { title, category, uploadedBy, isPublished, tags } = req.body;
-         
+        const { title, category, uploadedBy, isPublished, tags, dateRange } = req.body;
+        // console.log(`title`,title);
+        // console.log(`category`,category);
+        // console.log(`uploadedBy`,uploadedBy);
+        // console.log(`isPublished`,isPublished);
+        // console.log(`tags`,tags);
+        // console.log(`dateRange`,dateRange);
+
+        
         const filters: Filter = {};
 
         if (category && Array.isArray(category) && category.length > 0) {
@@ -84,7 +94,15 @@ export class UploadController {
         if (isPublished) {
             filters.isPublished = isPublished;
         }
-        // console.log(`filters`,filters,title);
+        // console.log(`dateRange`,dateRange);
+        
+        if (dateRange) {
+            const { start, end } = dateRange as DateRange; 
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            filters.createdAt = { start: startDate, end: endDate };
+        }
+        // console.log(`controller filters`,filters,title);
         
         const videos = await this.uploadService.getVideos(
             title as string,
@@ -93,7 +111,7 @@ export class UploadController {
                 page: req.query.page ? parseInt(req.query.page as string) : 1,
                 limit: req.query.limit
                     ? parseInt(req.query.limit as string)
-                    : 10,
+                    : 2,
             },
         );
 

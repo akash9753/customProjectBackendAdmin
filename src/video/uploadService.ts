@@ -16,6 +16,10 @@ export class UploadService  {
         filters: Filter,
         paginateQuery: PaginateQuery,
     ) {
+        // console.log(`service search query`,q);
+        // console.log(`service filter`,filters);
+        // console.log(`paginateQuery`,paginateQuery);
+        
         const searchQueryRegexp = new RegExp(q, "i");
     
         // Define a type for the partial match query
@@ -23,12 +27,13 @@ export class UploadService  {
             [K in keyof Filter]: 
                 K extends 'category' | 'tags' | 'uploadedBy' ? { $in: Filter[K] } :
                 K extends 'title' | 'isPublished' ? RegExp | string :
-                Filter[K];
+                K extends 'createdAt' ? { $gte: Date; $lte: Date } :
+                 Filter[K];
         }>;
         
         
         // Initialize an empty matchQuery object
-        const matchQuery: PartialMatchQuery = {};
+        const matchQuery: PartialMatchQuery = {title:searchQueryRegexp};
         // console.log(`MatchQuery`,typeof matchQuery);
         // Add fields to matchQuery if they are available in filters
         if (filters.title) {
@@ -50,8 +55,18 @@ export class UploadService  {
         if (filters.uploadedBy && filters.uploadedBy.length > 0) {
             matchQuery.uploadedBy = { $in: filters.uploadedBy };
         }
+
+        if (filters.createdAt) {
+            matchQuery.createdAt = {
+                $gte: filters.createdAt.start,
+                $lte: filters.createdAt.end,
+            };
+        }
     
         // console.log(`service match query`, matchQuery);
+        // service match query {
+        //     createdAt: { '$gte': '2024-04-06T00:00:00Z', '$lte': '2024-04-06T23:59:59Z' }
+        //   }
     
         // Perform aggregation
         const aggregate = videoModel.aggregate([

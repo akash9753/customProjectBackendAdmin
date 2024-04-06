@@ -29,6 +29,6 @@ router.post(
     uploadController.upload,
 );
 
-router.get("/",authenticate,uploadController.index)
+router.post("/",authenticate,uploadController.index)
 
 export default router;
