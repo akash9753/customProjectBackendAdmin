@@ -30,4 +30,6 @@ router.post("/login", authValidator, asyncWrapper(authController.login));
 
 router.get("/self",authenticate, asyncWrapper(authController.self));
 
+router.post("/logout",authenticate, asyncWrapper(authController.logout))
+
 export default router;

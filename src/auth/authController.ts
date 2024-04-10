@@ -10,6 +10,7 @@ import bcrypt from "bcrypt";
 import { JwtPayload } from "jsonwebtoken";
 import { Roles } from "../common/constants";
 
+
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -76,7 +77,7 @@ export class AuthController {
             user as unknown as User,
         );
 
-        res.json({ id: newUser._id });
+        res.json({status:true, id: newUser._id });
     };
 
     login = async (req: Request, res: Response, next: NextFunction) => {
@@ -131,7 +132,7 @@ export class AuthController {
             httpOnly: true, // Very important
         });
 
-        res.json({ status: "success" });
+        res.json({ status:true });
     };
 
     self = async(req: Request, res: Response) =>{
@@ -145,5 +146,16 @@ export class AuthController {
         const user = await this.userService.findById(req.auth.sub);
         const data = {...user, password: undefined, confirmPassword:undefined }
         res.json({status:true, data:data});
+    }
+
+    async logout(req: Request, res: Response, next: NextFunction) {
+        try {
+            res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
+            res.json({});
+        } catch (err) {
+            next(err);
+            return;
+        }
     }
 }
